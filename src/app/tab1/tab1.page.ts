@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {Geolocation, Position} from '@capacitor/geolocation';
-import {Motion} from '@capacitor/motion';
+import {AccelListenerEvent, Motion} from '@capacitor/motion';
 import {PluginListenerHandle} from '@capacitor/core';
 
 
@@ -10,28 +10,23 @@ import {PluginListenerHandle} from '@capacitor/core';
   styleUrls: ['tab1.page.scss']
 })
 export class Tab1Page {
-  coords: Position['coords'];
+  coordinates: Position['coords'];
   accelHandler: PluginListenerHandle;
-  hello: any = 'before-er';
+  event: AccelListenerEvent;
 
   constructor() {
+    this.information();
   }
 
-  async locate() {
+  /**
+   * Display Geolocation and Motion Data
+   */
+  async information() {
     const coordinates = await Geolocation.getCurrentPosition();
-    this.coords = coordinates.coords;
-  }
+    this.coordinates = coordinates.coords;
 
-  async watch() {
-    this.hello = 'before';
-    //if ( device is ios do this)
-    //await (DeviceMotionEvent as any).requestPermission();
-    this.hello = 'hello';
-
-    // Once the user approves, can start listening:
     this.accelHandler = await Motion.addListener('accel', event => {
-      console.log('Device motion event:', event);
-      this.hello = 'evented';
+      this.event = event;
     });
   }
 }

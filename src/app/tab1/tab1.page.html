@@ -13,13 +13,18 @@
 
     </ion-toolbar>
   </ion-header>
-  <ion-button (click)="locate()">Location</ion-button>
-  <ion-text [textContent]=coords.latitude></ion-text>
-  <ion-text><p>Hoge</p></ion-text>
-  <ion-text [textContent]=coords.longitude></ion-text>
+  <ion-text>Geolocation<br/></ion-text>
+  <ion-text>Latitude: {{coordinates.latitude}}<br/></ion-text>
+  <ion-text>Longitude: {{coordinates.longitude}}<br/></ion-text>
 
-  <ion-button (click)="watch()">Motion</ion-button>
-  <ion-text [textContent]=accelHandler></ion-text>
-  <ion-text [textContent]=hello></ion-text>
+  <ion-text>Motion<br/></ion-text>
+  <ion-text>Accel X {{event.acceleration.x}}<br/></ion-text>
+  <ion-text>Accel Y {{event.acceleration.y}}<br/></ion-text>
+  <ion-text>Accel Z {{event.acceleration.z}}<br/></ion-text>
+
+  <ion-text>Rotation Alpha {{event.rotationRate.alpha}}<br/></ion-text>
+  <ion-text>Rotation Beta {{event.rotationRate.beta}}<br/></ion-text>
+  <ion-text>Rotation Gamma {{event.rotationRate.gamma}}<br/></ion-text>
+
   <app-explore-container name="Tab 1 page"></app-explore-container>
 </ion-content>
