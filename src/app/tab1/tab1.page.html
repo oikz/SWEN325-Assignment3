@@ -13,18 +13,21 @@
 
     </ion-toolbar>
   </ion-header>
-  <ion-text>Geolocation<br/></ion-text>
-  <ion-text>Latitude: {{coordinates.latitude}}<br/></ion-text>
-  <ion-text>Longitude: {{coordinates.longitude}}<br/></ion-text>
+  <ion-content *ngIf="coordinates">
+    <ion-text>Geolocation<br/></ion-text>
+    <ion-text>Latitude: {{coordinates.latitude}}<br/></ion-text>
+    <ion-text>Longitude: {{coordinates.longitude}}<br/></ion-text>
+  </ion-content>
 
-  <ion-text>Motion<br/></ion-text>
-  <ion-text>Accel X {{event.acceleration.x}}<br/></ion-text>
-  <ion-text>Accel Y {{event.acceleration.y}}<br/></ion-text>
-  <ion-text>Accel Z {{event.acceleration.z}}<br/></ion-text>
+  <ion-content *ngIf="event">
+    <ion-text>Motion<br/></ion-text>
+    <ion-text>Accel X {{event.acceleration.x}}<br/></ion-text>
+    <ion-text>Accel Y {{event.acceleration.y}}<br/></ion-text>
+    <ion-text>Accel Z {{event.acceleration.z}}<br/></ion-text>
 
-  <ion-text>Rotation Alpha {{event.rotationRate.alpha}}<br/></ion-text>
-  <ion-text>Rotation Beta {{event.rotationRate.beta}}<br/></ion-text>
-  <ion-text>Rotation Gamma {{event.rotationRate.gamma}}<br/></ion-text>
-
+    <ion-text>Rotation Alpha {{event.rotationRate.alpha}}<br/></ion-text>
+    <ion-text>Rotation Beta {{event.rotationRate.beta}}<br/></ion-text>
+    <ion-text>Rotation Gamma {{event.rotationRate.gamma}}<br/></ion-text>
+  </ion-content>
   <app-explore-container name="Tab 1 page"></app-explore-container>
 </ion-content>
