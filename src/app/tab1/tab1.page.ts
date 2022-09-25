@@ -2,6 +2,8 @@ import {Component} from '@angular/core';
 import {Geolocation, Position} from '@capacitor/geolocation';
 import {AccelListenerEvent, Motion} from '@capacitor/motion';
 import {PluginListenerHandle} from '@capacitor/core';
+import {AuthService} from '../services/auth.service';
+import {Router} from '@angular/router';
 
 
 @Component({
@@ -14,8 +16,13 @@ export class Tab1Page {
   accelHandler: PluginListenerHandle;
   event: AccelListenerEvent;
 
-  constructor() {
+  constructor(private auth: AuthService, private router: Router) {
     this.information();
+  }
+
+  logout() {
+    this.auth.logout();
+    this.router.navigate(['']);
   }
 
   /**
