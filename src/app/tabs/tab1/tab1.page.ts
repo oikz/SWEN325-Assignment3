@@ -2,7 +2,7 @@ import {Component} from '@angular/core';
 import {Geolocation, Position} from '@capacitor/geolocation';
 import {AccelListenerEvent, Motion} from '@capacitor/motion';
 import {PluginListenerHandle} from '@capacitor/core';
-import {AuthService} from '../services/auth.service';
+import {AuthService} from '../../services/auth.service';
 import {Router} from '@angular/router';
 
 
