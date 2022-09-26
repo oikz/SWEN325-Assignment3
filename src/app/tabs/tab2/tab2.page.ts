@@ -1,5 +1,5 @@
 import {Component, ElementRef, ViewChild} from '@angular/core';
-import {GoogleMap} from '@capacitor/google-maps';
+import {CapacitorGoogleMaps} from '@capacitor-community/capacitor-googlemaps-native';
 
 @Component({
   selector: 'app-tab2',
@@ -7,8 +7,8 @@ import {GoogleMap} from '@capacitor/google-maps';
   styleUrls: ['tab2.page.scss']
 })
 export class Tab2Page {
-  @ViewChild('map') mapRef: ElementRef;
-  map: GoogleMap;
+
+  @ViewChild('map') mapView: ElementRef;
 
   constructor() {
 
@@ -19,17 +19,24 @@ export class Tab2Page {
   }
 
   async createMap() {
-    this.map = await GoogleMap.create({
-      id: 'my-map',
-      apiKey: 'AIzaSyAZfmwK5h1tQgPlYQT2cwe6JVCtzQWRxdE',
-      config: {
-        center: {
-          lat: -41.2924,
-          lng: 174.7784
-        },
-        zoom: 8
-      },
-      element: this.mapRef.nativeElement,
+    const boundingRect = this.mapView.nativeElement.getBoundingClientRect() as DOMRect;
+    console.log(boundingRect);
+
+    await CapacitorGoogleMaps.create({
+      width: Math.round(boundingRect.width),
+      height: Math.round(boundingRect.height),
+      x: Math.round(boundingRect.x),
+      y: Math.round(boundingRect.y),
+      zoom: 15,
+      latitude: 51.2194475,
+      longitude: 4.4024643,
+    });
+
+    CapacitorGoogleMaps.addListener('onMapReady', async () => {
+      await CapacitorGoogleMaps.setMapType({
+        type: 'hybrid'
+      });
     });
   }
+
 }
