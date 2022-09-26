@@ -17,7 +17,21 @@ export class Tab1Page {
   event: AccelListenerEvent;
 
   constructor(private auth: AuthService, private router: Router) {
-    this.information();
+    this.setup();
+    // Run this function every 5 seconds
+    setInterval(async () => {
+      await this.location();
+    }, 1000);
+  }
+
+  /**
+   * Set up motion listener
+   */
+  async setup() {
+    this.accelHandler = await Motion.addListener('accel', event => {
+      this.event = event;
+      console.log(event);
+    });
   }
 
   logout() {
@@ -25,15 +39,8 @@ export class Tab1Page {
     this.router.navigate(['']);
   }
 
-  /**
-   * Display Geolocation and Motion Data
-   */
-  async information() {
+  async location() {
     const coordinates = await Geolocation.getCurrentPosition();
     this.coordinates = coordinates.coords;
-
-    this.accelHandler = await Motion.addListener('accel', event => {
-      this.event = event;
-    });
   }
 }
