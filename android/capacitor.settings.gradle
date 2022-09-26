@@ -2,6 +2,9 @@
 include ':capacitor-android'
 project(':capacitor-android').projectDir = new File('../node_modules/@capacitor/android/capacitor')
 
+include ':capacitor-community-capacitor-googlemaps-native'
+project(':capacitor-community-capacitor-googlemaps-native').projectDir = new File('../node_modules/@capacitor-community/capacitor-googlemaps-native/android')
+
 include ':capacitor-app'
 project(':capacitor-app').projectDir = new File('../node_modules/@capacitor/app/android')
 
