@@ -127,22 +127,4 @@ export class Tab2Page {
       points,
     });
   }
-
-  //
-  // updateMap(locations) {
-  //   // Remove all current marker
-  //   this.markers.map(marker => marker.setMap(null));
-  //   this.markers = [];
-  //
-  //   for (let loc of locations) {
-  //     let latLng = new google.maps.LatLng(loc.lat, loc.lng);
-  //
-  //     let marker = new google.maps.Marker({
-  //       map: this.map,
-  //       animation: google.maps.Animation.DROP,
-  //       position: latLng
-  //     });
-  //     this.markers.push(marker);
-  //   }
-  // }
 }
