@@ -112,7 +112,9 @@ export class Tab2Page {
 
   startTracking() {
     this.isTracking = true;
-    this.watch = Geolocation.watchPosition({}, (position, err) => {
+    this.watch = Geolocation.watchPosition({
+      enableHighAccuracy: true,
+    }, (position, err) => {
       console.log('new position' + position.coords.latitude + ' ' + position.coords.longitude);
       if (err) {
         console.log(err);
