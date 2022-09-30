@@ -12,31 +12,30 @@ import {CapacitorGoogleMaps} from '@capacitor-community/capacitor-googlemaps-nat
 })
 export class Tab1Page {
   @ViewChild('map') mapView: ElementRef;
-  coordinates: Position['coords'];
+  id = '0';
 
   constructor(private auth: AuthService, private router: Router) {
   }
 
   ionViewDidEnter() {
-    Geolocation.watchPosition({
-      enableHighAccuracy: true,
-    }, (position) => {
-      this.coordinates = position.coords;
-    }).then(async () => {
-      await this.createMap();
+    this.createMap().then(async () => {
+      this.id = await Geolocation.watchPosition({enableHighAccuracy: true}, async (position) => {
+        await this.updateMap(position);
+      });
     });
   }
 
   ionViewDidLeave() {
     CapacitorGoogleMaps.close();
+    Geolocation.clearWatch({id: this.id});
   }
 
+  /**
+   * Create the map and display it on the screen
+   */
   async createMap() {
+    const coordinates = (await Geolocation.getCurrentPosition()).coords;
     const boundingRect = this.mapView.nativeElement.getBoundingClientRect() as DOMRect;
-    console.log(boundingRect);
-    const coordinates = await Geolocation.getCurrentPosition({
-      enableHighAccuracy: true,
-    });
 
     await CapacitorGoogleMaps.create({
       width: Math.round(boundingRect.width),
@@ -44,8 +43,8 @@ export class Tab1Page {
       x: Math.round(boundingRect.x),
       y: Math.round(boundingRect.y),
       zoom: 18,
-      latitude: coordinates.coords.latitude,
-      longitude: coordinates.coords.longitude,
+      latitude: coordinates.latitude,
+      longitude: coordinates.longitude,
       liteMode: true,
     });
 
@@ -66,11 +65,19 @@ export class Tab1Page {
       consumesGesturesInView: false,
       indoorPicker: false,
     });
+  }
 
+  /**
+   * Update the map by moving it to the current position, and adding an indicator of where the user is
+   *
+   * @param position The current position
+   */
+  async updateMap(position: Position) {
+    await CapacitorGoogleMaps.clear();
     await CapacitorGoogleMaps.addCircle({
       center: {
-        latitude: coordinates.coords.latitude,
-        longitude: coordinates.coords.longitude,
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
       },
       radius: 2,
       fillColor: '#ffff00',
@@ -79,11 +86,14 @@ export class Tab1Page {
     });
 
     await CapacitorGoogleMaps.setCamera({
-      latitude: coordinates.coords.latitude,
-      longitude: coordinates.coords.longitude,
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
     });
   }
 
+  /**
+   * Logout the current user and redirect them to the welcome page
+   */
   logout() {
     this.auth.logout();
     this.router.navigate(['']);
