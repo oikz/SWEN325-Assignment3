@@ -9,9 +9,12 @@ import {Router} from '@angular/router';
 })
 export class AppComponent {
   constructor(private auth: Auth, private router: Router) {
-    if (auth.currentUser) {
-      // Redirect to home page
-      router.navigateByUrl('/home');
-    }
+    this.auth.onAuthStateChanged(user => {
+      if (user) {
+        this.router.navigate(['/tabs']);
+      } else {
+        this.router.navigate(['/welcome']);
+      }
+    });
   }
 }
