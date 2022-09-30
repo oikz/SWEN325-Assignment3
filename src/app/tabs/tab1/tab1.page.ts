@@ -3,6 +3,8 @@ import {Geolocation, Position} from '@capacitor/geolocation';
 import {AuthService} from '../../services/auth.service';
 import {Router} from '@angular/router';
 import {CapacitorGoogleMaps} from '@capacitor-community/capacitor-googlemaps-native';
+import {DeviceOrientation, DeviceOrientationCompassHeading} from '@awesome-cordova-plugins/device-orientation/ngx';
+import {Subscription} from 'rxjs';
 
 
 @Component({
@@ -13,21 +15,32 @@ import {CapacitorGoogleMaps} from '@capacitor-community/capacitor-googlemaps-nat
 export class Tab1Page {
   @ViewChild('map') mapView: ElementRef;
   id = '0';
+  heading = 0;
+  orientationListener: Subscription;
+  refreshInterval: any;
 
-  constructor(private auth: AuthService, private router: Router) {
+  constructor(private auth: AuthService, private router: Router, private deviceOrientation: DeviceOrientation) {
   }
 
   ionViewDidEnter() {
     this.createMap().then(async () => {
-      this.id = await Geolocation.watchPosition({enableHighAccuracy: true}, async (position) => {
+      this.refreshInterval = setInterval(async () => {
+        const position = await Geolocation.getCurrentPosition();
         await this.updateMap(position);
-      });
+      }, 500);
     });
+
+    // Listen for changes in the device orientation and autorotate the map
+    this.orientationListener = this.deviceOrientation.watchHeading().subscribe(
+      (data: DeviceOrientationCompassHeading) => this.heading = data.magneticHeading
+    );
   }
 
   ionViewDidLeave() {
     CapacitorGoogleMaps.close();
     Geolocation.clearWatch({id: this.id});
+    this.orientationListener.unsubscribe();
+    clearInterval(this.refreshInterval);
   }
 
   /**
@@ -85,9 +98,12 @@ export class Tab1Page {
       strokeWidth: 1,
     });
 
+    // Rotate the map to the current heading
     await CapacitorGoogleMaps.setCamera({
       latitude: position.coords.latitude,
       longitude: position.coords.longitude,
+      animate: true,
+      bearing: this.heading,
     });
   }
 
