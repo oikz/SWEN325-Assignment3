@@ -17,7 +17,7 @@ export class Tab2Page {
   locationsCollection: AngularFirestoreCollection<any>;
   user = null;
   isTracking = false;
-  watch = null;
+  watch: string = null;
   lastTime = 0;
 
   constructor(private afAuth: AngularFireAuth, private afs: AngularFirestore) {
@@ -40,15 +40,13 @@ export class Tab2Page {
 
       //update map
       this.locations.subscribe((locations) => {
-        // this.updateMap(locations);
+        this.updateMap(locations);
       });
     });
   }
 
   ionViewDidEnter() {
-    this.createMap().then(() => {
-      this.loadMap();
-    });
+    this.createMap();
   }
 
   async createMap() {
@@ -71,51 +69,18 @@ export class Tab2Page {
         type: 'hybrid'
       });
     });
-
-    // await CapacitorGoogleMaps.addPolyline({
-    //   points: [
-    //     {latitude: -41.276825, longitude: 174.777969},
-    //     {latitude: -41.25, longitude: 174.70},
-    //     {latitude: -41.20, longitude: 174.65},
-    //   ],
-    // });
   }
 
   ionViewDidLeave() {
     CapacitorGoogleMaps.close();
   }
 
-  loadMap() {
-    this.locations = this.locationsCollection.valueChanges();
-    // draws markers on the map
-    // this.locations.subscribe((locations) => {
-    //   locations.forEach((location) => {
-    //     CapacitorGoogleMaps.addMarker({
-    //       latitude: location.latitude,
-    //       longitude: location.longitude,
-    //       title: location.timestamp,
-    //     });
-    //   });
-    // });
 
-    // draws polyline on the map
-    this.locations.subscribe((locations) => {
-      const points = [];
-      locations.forEach((location) => {
-        points.push({latitude: location.latitude, longitude: location.longitude});
-      });
-      CapacitorGoogleMaps.addPolyline({
-        points,
-      });
-    });
-  }
-
-  startTracking() {
+  async startTracking() {
     this.isTracking = true;
-    this.watch = Geolocation.watchPosition({
+    this.watch = await Geolocation.watchPosition({
       enableHighAccuracy: true,
     }, (position, err) => {
-      console.log('new position' + position.coords.latitude + ' ' + position.coords.longitude);
       if (err) {
         console.log(err);
         return;
@@ -141,6 +106,25 @@ export class Tab2Page {
 
   // Delete a location from Firebase
   deleteLocation(pos) {
+    console.log(pos);
     this.locationsCollection.doc(pos.id).delete();
+  }
+
+  updateMap(locations: any) {
+    // draw a line between the locations visited in last 24 hours
+    //TODO: dont hardcode 24 hours
+    const now = new Date().getTime();
+    const last24Hours = now - 24 * 60 * 60 * 1000;
+    const filteredLocations = locations.filter((loc) => loc.timestamp > last24Hours);
+
+    const points = filteredLocations.map((loc) => ({
+        latitude: loc.latitude,
+        longitude: loc.longitude,
+      })
+    );
+
+    CapacitorGoogleMaps.addPolyline({
+      points,
+    });
   }
 }
