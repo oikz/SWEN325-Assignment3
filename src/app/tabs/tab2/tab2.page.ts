@@ -87,13 +87,25 @@ export class Tab2Page {
 
   loadMap() {
     this.locations = this.locationsCollection.valueChanges();
+    // draws markers on the map
+    // this.locations.subscribe((locations) => {
+    //   locations.forEach((location) => {
+    //     CapacitorGoogleMaps.addMarker({
+    //       latitude: location.latitude,
+    //       longitude: location.longitude,
+    //       title: location.timestamp,
+    //     });
+    //   });
+    // });
+
+    // draws polyline on the map
     this.locations.subscribe((locations) => {
+      const points = [];
       locations.forEach((location) => {
-        CapacitorGoogleMaps.addMarker({
-          latitude: location.latitude,
-          longitude: location.longitude,
-          title: location.timestamp,
-        });
+        points.push({latitude: location.latitude, longitude: location.longitude});
+      });
+      CapacitorGoogleMaps.addPolyline({
+        points,
       });
     });
   }
