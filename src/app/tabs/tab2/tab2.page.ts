@@ -4,6 +4,7 @@ import {Geolocation} from '@capacitor/geolocation';
 import {Observable} from 'rxjs';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/compat/firestore';
 import {AngularFireAuth} from '@angular/fire/compat/auth';
+import {map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-tab2',
@@ -12,7 +13,6 @@ import {AngularFireAuth} from '@angular/fire/compat/auth';
 })
 export class Tab2Page {
   @ViewChild('map') mapView: ElementRef;
-
   locations: Observable<any>;
   locationsCollection: AngularFirestoreCollection<any>;
   user = null;
@@ -26,12 +26,28 @@ export class Tab2Page {
         'locations/' + user.uid + '/locations',
         ref => ref.orderBy('timestamp', 'desc')
       );
+
+      //load locations
+      this.locations = this.locationsCollection.snapshotChanges().pipe(
+        map(actions => actions.map(a => {
+            const data = a.payload.doc.data();
+            const id = a.payload.doc.id;
+            return {id, ...data};
+          })
+        )
+      );
+
+      //update map
+      this.locations.subscribe((locations) => {
+        // this.updateMap(locations);
+      });
     });
   }
 
   ionViewDidEnter() {
-    this.createMap();
-    this.loadMap();
+    this.createMap().then(() => {
+      this.loadMap();
+    });
   }
 
   async createMap() {
@@ -55,13 +71,13 @@ export class Tab2Page {
       });
     });
 
-    CapacitorGoogleMaps.addPolyline({
-      points: [
-        {latitude: -41.276825, longitude: 174.777969},
-        {latitude: -41.25, longitude: 174.70},
-        {latitude: -41.20, longitude: 174.65},
-      ],
-    });
+    // await CapacitorGoogleMaps.addPolyline({
+    //   points: [
+    //     {latitude: -41.276825, longitude: 174.777969},
+    //     {latitude: -41.25, longitude: 174.70},
+    //     {latitude: -41.20, longitude: 174.65},
+    //   ],
+    // });
   }
 
   ionViewDidLeave() {
@@ -84,7 +100,7 @@ export class Tab2Page {
   startTracking() {
     this.isTracking = true;
     this.watch = Geolocation.watchPosition({}, (position, err) => {
-      console.log('new position' + position);
+      console.log('new position' + position.coords.latitude + ' ' + position.coords.longitude);
       if (err) {
         console.log(err);
         return;
@@ -102,5 +118,10 @@ export class Tab2Page {
     Geolocation.clearWatch({id: this.watch}).then(() => {
       this.isTracking = false;
     });
+  }
+
+  // Delete a location from Firebase
+  deleteLocation(pos) {
+    this.locationsCollection.doc(pos.id).delete();
   }
 }

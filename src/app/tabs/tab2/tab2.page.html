@@ -35,8 +35,8 @@
       <ion-item-sliding *ngFor="let pos of locations | async">
         <ion-item>
           <ion-label text-wrap>
-            Lat: {{ pos.lat }}
-            Lng: {{ pos.lng }}
+            Lat: {{ pos.latitude }}
+            Lng: {{ pos.longitude }}
             <p>
               {{ pos.timestamp | date:'short' }}
             </p>
