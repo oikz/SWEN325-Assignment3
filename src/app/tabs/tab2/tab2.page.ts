@@ -18,6 +18,7 @@ export class Tab2Page {
   user = null;
   isTracking = false;
   watch = null;
+  lastTime = 0;
 
   constructor(private afAuth: AngularFireAuth, private afs: AngularFirestore) {
     this.afAuth.onAuthStateChanged((user) => {
@@ -105,11 +106,15 @@ export class Tab2Page {
         console.log(err);
         return;
       }
-      this.locationsCollection.add({
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        timestamp: new Date().getTime(),
-      });
+      //add every 10 seconds max
+      if (position.timestamp - this.lastTime > 10000) {
+        this.lastTime = position.timestamp;
+        this.locationsCollection.add({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          timestamp: position.timestamp,
+        });
+      }
     });
   }
 
