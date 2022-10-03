@@ -19,6 +19,7 @@ export class Tab2Page {
   isTracking = false;
   watch: string = null;
   lastTime = 0;
+  earliestDate = 24;
 
   constructor(private afAuth: AngularFireAuth, private afs: AngularFirestore) {
     this.afAuth.onAuthStateChanged((user) => {
@@ -110,11 +111,15 @@ export class Tab2Page {
     this.locationsCollection.doc(pos.id).delete();
   }
 
-  updateMap(locations: any) {
-    // draw a line between the locations visited in last 24 hours
-    //TODO: dont hardcode 24 hours
+  /**
+   * Update the map lines between locations visited
+   *
+   * @param locations locations to draw lines between
+   */
+  async updateMap(locations: any) {
+    // draw a line between the locations visited in last this.earliestDate hours
     const now = new Date().getTime();
-    const last24Hours = now - 24 * 60 * 60 * 1000;
+    const last24Hours = now - this.earliestDate * 60 * 60 * 1000;
     const filteredLocations = locations.filter((loc) => loc.timestamp > last24Hours);
 
     const points = filteredLocations.map((loc) => ({
@@ -123,8 +128,21 @@ export class Tab2Page {
       })
     );
 
-    CapacitorGoogleMaps.addPolyline({
-      points,
-    });
+    //clear map
+    await CapacitorGoogleMaps.clear();
+    //add points
+    if (points.length > 0) {
+      CapacitorGoogleMaps.addPolyline({
+        points,
+      });
+    }
+  }
+
+  setPointTimeframe(timeframe: number) {
+    this.earliestDate = timeframe;
+    this.locations.subscribe((locations) => {
+        this.updateMap(locations);
+      }
+    );
   }
 }
