@@ -10,9 +10,6 @@ import {FirestoreService} from '../../services/firestore.service';
 })
 export class Tab2Page {
   @ViewChild('map') mapView: ElementRef;
-  isTracking = false;
-  watch: string = null;
-  lastTime = 0;
   earliestDate = 24;
 
   constructor(public firestoreService: FirestoreService) {
@@ -49,31 +46,6 @@ export class Tab2Page {
 
   ionViewDidLeave() {
     CapacitorGoogleMaps.close();
-  }
-
-
-  async startTracking() {
-    this.isTracking = true;
-    this.watch = await Geolocation.watchPosition({
-      enableHighAccuracy: true,
-    }, (position, err) => {
-      if (err) {
-        console.log(err);
-        return;
-      }
-      //add every 10 seconds max
-      if (position.timestamp - this.lastTime > 10000) {
-        this.lastTime = position.timestamp;
-        this.firestoreService.addLocation(position);
-      }
-    });
-  }
-
-  // Unsubscribe from the geolocation watch using the initial ID
-  stopTracking() {
-    Geolocation.clearWatch({id: this.watch}).then(() => {
-      this.isTracking = false;
-    });
   }
 
   // Delete a location from Firebase

@@ -16,4 +16,14 @@
   </ion-header>
 
   <div id="map" #map></div>
+
+  <ion-button expand="block" (click)="startTracking()" *ngIf="!isTracking">
+    <ion-icon name="locate" slot="start"></ion-icon>
+    Start Tracking
+  </ion-button>
+
+  <ion-button expand="block" (click)="stopTracking()" *ngIf="isTracking">
+    <ion-icon name="hand" slot="start"></ion-icon>
+    Stop Tracking
+  </ion-button>
 </ion-content>
