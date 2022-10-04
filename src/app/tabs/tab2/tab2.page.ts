@@ -1,10 +1,7 @@
 import {Component, ElementRef, ViewChild} from '@angular/core';
 import {CapacitorGoogleMaps} from '@capacitor-community/capacitor-googlemaps-native';
 import {Geolocation} from '@capacitor/geolocation';
-import {Observable} from 'rxjs';
-import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/compat/firestore';
-import {AngularFireAuth} from '@angular/fire/compat/auth';
-import {map} from 'rxjs/operators';
+import {FirestoreService} from '../../services/firestore.service';
 
 @Component({
   selector: 'app-tab2',
@@ -13,36 +10,14 @@ import {map} from 'rxjs/operators';
 })
 export class Tab2Page {
   @ViewChild('map') mapView: ElementRef;
-  locations: Observable<any>;
-  locationsCollection: AngularFirestoreCollection<any>;
-  user = null;
   isTracking = false;
   watch: string = null;
   lastTime = 0;
   earliestDate = 24;
 
-  constructor(private afAuth: AngularFireAuth, private afs: AngularFirestore) {
-    this.afAuth.onAuthStateChanged((user) => {
-      this.user = user;
-      this.locationsCollection = this.afs.collection(
-        'locations/' + user.uid + '/locations',
-        ref => ref.orderBy('timestamp', 'desc')
-      );
-
-      //load locations
-      this.locations = this.locationsCollection.snapshotChanges().pipe(
-        map(actions => actions.map(a => {
-            const data = a.payload.doc.data();
-            const id = a.payload.doc.id;
-            return {id, ...data};
-          })
-        )
-      );
-
-      //update map
-      this.locations.subscribe((locations) => {
-        this.updateMap(locations);
-      });
+  constructor(public firestoreService: FirestoreService) {
+    this.firestoreService.getLocations().subscribe((locations) => {
+      this.updateMap(locations);
     });
   }
 
@@ -89,11 +64,7 @@ export class Tab2Page {
       //add every 10 seconds max
       if (position.timestamp - this.lastTime > 10000) {
         this.lastTime = position.timestamp;
-        this.locationsCollection.add({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          timestamp: position.timestamp,
-        });
+        this.firestoreService.addLocation(position);
       }
     });
   }
@@ -107,8 +78,7 @@ export class Tab2Page {
 
   // Delete a location from Firebase
   deleteLocation(pos) {
-    console.log(pos);
-    this.locationsCollection.doc(pos.id).delete();
+    this.firestoreService.deleteLocation(pos);
   }
 
   /**
@@ -140,7 +110,7 @@ export class Tab2Page {
 
   setPointTimeframe(timeframe: number) {
     this.earliestDate = timeframe;
-    this.locations.subscribe((locations) => {
+    this.firestoreService.getLocations().subscribe((locations) => {
         this.updateMap(locations);
       }
     );

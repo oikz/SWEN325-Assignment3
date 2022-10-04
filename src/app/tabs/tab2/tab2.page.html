@@ -15,10 +15,10 @@
 
 
   <div id="map" #map></div>
-  <div *ngIf="user">
+  <div *ngIf="this.firestoreService.user">
 
     <ion-item>
-      <ion-label>User ID: {{ user.uid }}</ion-label>
+      <ion-label>User ID: {{ this.firestoreService.user.uid }}</ion-label>
     </ion-item>
 
     <!-- have buttons for 24 hours, 3 days, a week and a month-->
@@ -40,7 +40,7 @@
     </ion-button>
 
     <ion-list>
-      <ion-item-sliding *ngFor="let pos of locations | async">
+      <ion-item-sliding *ngFor="let pos of this.firestoreService.getLocations() | async">
         <ion-item>
           <ion-label text-wrap>
             Lat: {{ pos.latitude }}
