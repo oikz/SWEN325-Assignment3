@@ -1,6 +1,7 @@
 import {Component} from '@angular/core';
 import {Auth} from '@angular/fire/auth';
 import {Router} from '@angular/router';
+import {FirestoreService} from './services/firestore.service';
 
 @Component({
   selector: 'app-root',
@@ -8,7 +9,7 @@ import {Router} from '@angular/router';
   styleUrls: ['app.component.scss'],
 })
 export class AppComponent {
-  constructor(private auth: Auth, private router: Router) {
+  constructor(private auth: Auth, private router: Router, private firestoreService: FirestoreService) {
     this.auth.onAuthStateChanged(user => {
       if (user) {
         this.router.navigate(['/tabs']);

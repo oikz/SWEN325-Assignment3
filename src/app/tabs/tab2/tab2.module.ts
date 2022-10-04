@@ -7,10 +7,6 @@ import { ExploreContainerComponentModule } from '../../explore-container/explore
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 import { Tab2PageRoutingModule } from './tab2-routing.module';
-import {AngularFireModule} from '@angular/fire/compat';
-import {environment} from '../../../environments/environment';
-import {AngularFirestoreModule} from '@angular/fire/compat/firestore';
-import {AngularFireAuthModule} from '@angular/fire/compat/auth';
 
 @NgModule({
   imports: [
@@ -18,10 +14,7 @@ import {AngularFireAuthModule} from '@angular/fire/compat/auth';
     CommonModule,
     FormsModule,
     ExploreContainerComponentModule,
-    Tab2PageRoutingModule,
-    AngularFireModule.initializeApp(environment.firebase),
-    AngularFirestoreModule,
-    AngularFireAuthModule
+    Tab2PageRoutingModule
   ],
   declarations: [Tab2Page],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
