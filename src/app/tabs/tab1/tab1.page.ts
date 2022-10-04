@@ -5,6 +5,7 @@ import {Router} from '@angular/router';
 import {CapacitorGoogleMaps} from '@capacitor-community/capacitor-googlemaps-native';
 import {DeviceOrientation, DeviceOrientationCompassHeading} from '@awesome-cordova-plugins/device-orientation/ngx';
 import {Subscription} from 'rxjs';
+import {FirestoreService} from '../../services/firestore.service';
 
 
 @Component({
@@ -18,8 +19,14 @@ export class Tab1Page {
   heading = 0;
   orientationListener: Subscription;
   refreshInterval: any;
+  isTracking = false;
+  watch: string = null;
+  lastTime = 0;
 
-  constructor(private auth: AuthService, private router: Router, private deviceOrientation: DeviceOrientation) {
+  constructor(private auth: AuthService,
+              private router: Router,
+              private deviceOrientation: DeviceOrientation,
+              private firestoreService: FirestoreService) {
   }
 
   ionViewDidEnter() {
@@ -113,5 +120,30 @@ export class Tab1Page {
   logout() {
     this.auth.logout();
     this.router.navigate(['']);
+  }
+
+
+  async startTracking() {
+    this.isTracking = true;
+    this.watch = await Geolocation.watchPosition({
+      enableHighAccuracy: true,
+    }, (position, err) => {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      //add every 10 seconds max
+      if (position.timestamp - this.lastTime > 10000) {
+        this.lastTime = position.timestamp;
+        this.firestoreService.addLocation(position);
+      }
+    });
+  }
+
+  // Unsubscribe from the geolocation watch using the initial ID
+  stopTracking() {
+    Geolocation.clearWatch({id: this.watch}).then(() => {
+      this.isTracking = false;
+    });
   }
 }

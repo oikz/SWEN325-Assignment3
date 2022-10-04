@@ -15,11 +15,7 @@
 
 
   <div id="map" #map></div>
-  <div *ngIf="user">
-
-    <ion-item>
-      <ion-label>User ID: {{ user.uid }}</ion-label>
-    </ion-item>
+  <div *ngIf="this.firestoreService.user">
 
     <!-- have buttons for 24 hours, 3 days, a week and a month-->
     <div>
@@ -29,18 +25,8 @@
       <ion-button (click)="setPointTimeframe(720)">1 month</ion-button>
     </div>
 
-    <ion-button expand="block" (click)="startTracking()" *ngIf="!isTracking">
-      <ion-icon name="locate" slot="start"></ion-icon>
-      Start Tracking
-    </ion-button>
-
-    <ion-button expand="block" (click)="stopTracking()" *ngIf="isTracking">
-      <ion-icon name="hand" slot="start"></ion-icon>
-      Stop Tracking
-    </ion-button>
-
     <ion-list>
-      <ion-item-sliding *ngFor="let pos of locations | async">
+      <ion-item-sliding *ngFor="let pos of this.firestoreService.getLocations() | async">
         <ion-item>
           <ion-label text-wrap>
             Lat: {{ pos.latitude }}
