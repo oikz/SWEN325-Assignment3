@@ -1,9 +1,6 @@
 import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
-import {AngularFireAuth} from '@angular/fire/compat/auth';
-import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/compat/firestore';
-import {map} from 'rxjs/operators';
-import {Observable} from 'rxjs';
 import {Chart, registerables} from 'chart.js';
+import {FirestoreService} from '../../services/firestore.service';
 
 @Component({
   selector: 'app-tab3',
@@ -13,52 +10,56 @@ import {Chart, registerables} from 'chart.js';
 export class Tab3Page implements AfterViewInit {
   @ViewChild('chart') chartElementRef: ElementRef;
   chart: Chart;
-  locations: Observable<any>;
-  locationsCollection: AngularFirestoreCollection<any>;
-  user = null;
-  isTracking = false;
-  watch: string = null;
-  lastTime = 0;
+  locations: any;
 
-
-  constructor(private afAuth: AngularFireAuth, private afs: AngularFirestore) {
-    this.afAuth.onAuthStateChanged((user) => {
-      this.user = user;
-      this.locationsCollection = this.afs.collection(
-        'locations/' + user.uid + '/locations',
-        ref => ref.orderBy('timestamp', 'desc')
-      );
-
-      //load locations
-      this.locations = this.locationsCollection.snapshotChanges().pipe(
-        map(actions => actions.map(a => {
-            const data = a.payload.doc.data();
-            const id = a.payload.doc.id;
-            return {id, ...data};
-          })
-        )
-      );
-
-      //update map
-      this.locations.subscribe((locations) => {
-        this.displayGraph(locations);
-      });
+  constructor(public firestoreService: FirestoreService) {
+    this.firestoreService.getLocations().subscribe((locations) => {
+      this.displayGraph(locations);
     });
   }
 
   ngAfterViewInit() {
     Chart.register(...registerables);
-    this.displayGraph(null);
   }
 
   displayGraph(locations: any) {
+    console.log('loc a tions ' + locations.length);
+
+
+    this.locations = locations;
+    const distances = [];
+    /*for (let i = 1; i < locations.length; i++) {
+      const distance = Math.sqrt(
+        Math.pow(Math.abs(locations[i].longitude - locations[i - 1].longitude), 2) +
+        Math.pow(Math.abs(locations[i].latitude - locations[i - 1].latitude), 2)
+      );
+      distances.push(distance);
+    }*/
+    let prevLoc = null;
+    for (const location of locations) {
+      if (!prevLoc) {
+        distances.push(0);
+        prevLoc = location;
+        continue;
+      }
+      /*const distance = Math.sqrt(
+        Math.pow(Math.abs(location.longitude - prevLoc.longitude), 2) +
+        Math.pow(Math.abs(location.latitude - prevLoc.latitude), 2)
+      );*/
+      const distance = this.measure(location.latitude, location.longitude, prevLoc.latitude, prevLoc.longitude);
+      prevLoc = location;
+      console.log('distance ' + distance);
+      distances.push(distance);
+    }
+
+
     this.chart = new Chart(this.chartElementRef.nativeElement, {
       type: 'line',
       data: {
         labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
         datasets: [{
           label: '# of Votes',
-          data: [12, 19, 3, 5, 2, 3],
+          data: distances,
           backgroundColor: [
             'rgba(255, 99, 132, 0.2)',
             'rgba(54, 162, 235, 0.2)',
@@ -88,5 +89,15 @@ export class Tab3Page implements AfterViewInit {
     });
   }
 
-
+  measure(lat1, lon1, lat2, lon2) {  // generally used geo measurement function
+    const R = 6378.137; // Radius of earth in KM
+    const dLat = lat2 * Math.PI / 180 - lat1 * Math.PI / 180;
+    const dLon = lon2 * Math.PI / 180 - lon1 * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const d = R * c;
+    return d * 1000; // meters
+  }
 }
