@@ -1,16 +1,16 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
 import {AngularFireAuth} from '@angular/fire/compat/auth';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/compat/firestore';
 import {map} from 'rxjs/operators';
 import {Observable} from 'rxjs';
-import {Chart} from 'chart.js';
+import {Chart, registerables} from 'chart.js';
 
 @Component({
   selector: 'app-tab3',
   templateUrl: 'tab3.page.html',
   styleUrls: ['tab3.page.scss']
 })
-export class Tab3Page implements OnInit {
+export class Tab3Page implements AfterViewInit {
   @ViewChild('chart') chartElementRef: ElementRef;
   chart: Chart;
   locations: Observable<any>;
@@ -41,19 +41,19 @@ export class Tab3Page implements OnInit {
 
       //update map
       this.locations.subscribe((locations) => {
-        //this.displayGraph(locations);
+        this.displayGraph(locations);
       });
     });
   }
 
-  ngOnInit() {
-    const context = this.chartElementRef.nativeElement;
+  ngAfterViewInit() {
+    Chart.register(...registerables);
     this.displayGraph(null);
   }
 
   displayGraph(locations: any) {
     this.chart = new Chart(this.chartElementRef.nativeElement, {
-      type: 'bar',
+      type: 'line',
       data: {
         labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
         datasets: [{
