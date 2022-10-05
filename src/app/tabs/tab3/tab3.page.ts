@@ -13,6 +13,7 @@ export class Tab3Page implements AfterViewInit {
   @ViewChild('chart') chartElementRef: ElementRef;
   chart: Chart;
   locations: any;
+  earliestDate = 0;
 
   constructor(public firestoreService: FirestoreService) {
     this.firestoreService.getLocations().subscribe((locations) => {
@@ -25,19 +26,14 @@ export class Tab3Page implements AfterViewInit {
   }
 
   displayGraph(locations: any) {
-    console.log('loc a tions ' + locations.length);
-
-
     this.locations = locations;
     const distances = [];
     const timestamps = [];
-    /*for (let i = 1; i < locations.length; i++) {
-      const distance = Math.sqrt(
-        Math.pow(Math.abs(locations[i].longitude - locations[i - 1].longitude), 2) +
-        Math.pow(Math.abs(locations[i].latitude - locations[i - 1].latitude), 2)
-      );
-      distances.push(distance);
-    }*/
+    if (this.earliestDate !== 0) {
+      const now = new Date().getTime();
+      const filterTime = now - this.earliestDate * 60 * 60 * 1000;
+      locations = locations.filter((loc) => loc.timestamp > filterTime);
+    }
     let prevLoc = null;
     for (const location of locations) {
       timestamps.push(location.timestamp);
@@ -56,7 +52,13 @@ export class Tab3Page implements AfterViewInit {
       data: {
         labels: timestamps,
         datasets: [{
-          label: 'Times',
+          label: 'Distance',
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.2)'
+          ],
+          borderColor: [
+            'rgba(255,99,132,1)'
+          ],
           data: distances
         }]
       },
@@ -65,16 +67,24 @@ export class Tab3Page implements AfterViewInit {
           x: {
             type: 'time',
             /*time: {
-              unit: 'week',
+              unit: 'day',
             },*/
             adapters: {
               date: {
                 locale: enNZ
               }
+            },
+            title: {
+              display: true,
+              text: 'Time'
             }
           },
           y: {
-            beginAtZero: true
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Distance travelled (Metres)'
+            }
           },
         },
       }
@@ -91,6 +101,14 @@ export class Tab3Page implements AfterViewInit {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const d = R * c;
     return d * 1000; // meters
+  }
+
+  setPointTimeframe(timeframe: number) {
+    this.earliestDate = timeframe;
+    this.firestoreService.getLocations().subscribe((locations) => {
+        this.displayGraph(locations);
+      }
+    );
   }
 }
 
