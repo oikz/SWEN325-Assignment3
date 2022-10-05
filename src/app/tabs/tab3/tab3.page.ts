@@ -162,7 +162,8 @@ export class Tab3Page implements AfterViewInit {
   }
 
   measureSpeed(dist, time1, time2) {
-    return dist / ((time2 * 1000) - (time1 * 1000));
+    const time = (time2 - time1) / 1000;
+    return dist / time;
   }
 
   setPointTimeframe(timeframe: number) {
