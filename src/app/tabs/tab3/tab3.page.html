@@ -2,7 +2,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Tab 3
+      Location Stats
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -17,10 +17,26 @@
   <!--<canvas id="chart1" ></canvas>-->
   <ion-item>
     <div class="chart">
-      <canvas #chart></canvas>
+      <canvas #chart1></canvas>
     </div>
-    <!-- have buttons for 24 hours, 3 days, a week and a month-->
+  </ion-item>
+  <ion-item>
+    <div class="chart">
+      <canvas #chart2></canvas>
+    </div>
+  </ion-item>
+  <!--<ion-item>
+    <ion-label>Data to display</ion-label>
+  </ion-item>
+  <ion-item>
+    <div>
+      <ion-button (click)="setPointTimeframe(24)">Distance</ion-button>
+      <ion-button (click)="setPointTimeframe(72)">Speed</ion-button>
+    </div>
+  </ion-item>-->
 
+  <ion-item>
+    <ion-label>Time Range</ion-label>
   </ion-item>
   <ion-item>
     <div>

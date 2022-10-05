@@ -10,8 +10,10 @@ import {FirestoreService} from '../../services/firestore.service';
   styleUrls: ['tab3.page.scss']
 })
 export class Tab3Page implements AfterViewInit {
-  @ViewChild('chart') chartElementRef: ElementRef;
-  chart: Chart;
+  @ViewChild('chart1') chart1ElementRef: ElementRef;
+  @ViewChild('chart2') chart2ElementRef: ElementRef;
+  distChart: Chart;
+  speedChart: Chart;
   locations: any;
   earliestDate = 0;
 
@@ -28,6 +30,7 @@ export class Tab3Page implements AfterViewInit {
   displayGraph(locations: any) {
     this.locations = locations;
     const distances = [];
+    const speeds = [];
     const timestamps = [];
     if (this.earliestDate !== 0) {
       const now = new Date().getTime();
@@ -42,12 +45,16 @@ export class Tab3Page implements AfterViewInit {
         prevLoc = location;
         continue;
       }
-      const distance = this.measure(location.latitude, location.longitude, prevLoc.latitude, prevLoc.longitude);
+      const distance = this.measureDistance(location.latitude, location.longitude, prevLoc.latitude, prevLoc.longitude);
+      const speed = this.measureSpeed(distance, location.timestamp, prevLoc.timestamp);
       prevLoc = location;
       distances.push(distance);
+      speeds.push(speed);
     }
-
-    this.chart = new Chart(this.chartElementRef.nativeElement, {
+    if (this.distChart) {
+      this.distChart.destroy();
+    }
+    this.distChart = new Chart(this.chart1ElementRef.nativeElement, {
       type: 'line',
       data: {
         labels: timestamps,
@@ -89,9 +96,54 @@ export class Tab3Page implements AfterViewInit {
         },
       }
     });
+    if (this.speedChart) {
+      this.speedChart.destroy();
+    }
+    this.speedChart = new Chart(this.chart2ElementRef.nativeElement, {
+      type: 'line',
+      data: {
+        labels: timestamps,
+        datasets: [{
+          label: 'Speed',
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.2)'
+          ],
+          borderColor: [
+            'rgba(255,99,132,1)'
+          ],
+          data: speeds
+        }]
+      },
+      options: {
+        scales: {
+          x: {
+            type: 'time',
+            /*time: {
+              unit: 'day',
+            },*/
+            adapters: {
+              date: {
+                locale: enNZ
+              }
+            },
+            title: {
+              display: true,
+              text: 'Time'
+            }
+          },
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Speed (Metres/Second)'
+            }
+          },
+        },
+      }
+    });
   }
 
-  measure(lat1, lon1, lat2, lon2) {  // generally used geo measurement function
+  measureDistance(lat1, lon1, lat2, lon2) {  // generally used geo measurement function
     const R = 6378.137; // Radius of earth in KM
     const dLat = lat2 * Math.PI / 180 - lat1 * Math.PI / 180;
     const dLon = lon2 * Math.PI / 180 - lon1 * Math.PI / 180;
@@ -101,6 +153,10 @@ export class Tab3Page implements AfterViewInit {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const d = R * c;
     return d * 1000; // meters
+  }
+
+  measureSpeed(dist, time1, time2) {
+    return dist / ((time2 * 1000) - (time1 * 1000));
   }
 
   setPointTimeframe(timeframe: number) {
