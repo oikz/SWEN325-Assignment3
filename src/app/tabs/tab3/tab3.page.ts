@@ -1,5 +1,7 @@
 import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
 import {Chart, registerables} from 'chart.js';
+import 'chartjs-adapter-date-fns';
+import {enNZ} from 'date-fns/locale';
 import {FirestoreService} from '../../services/firestore.service';
 
 @Component({
@@ -28,6 +30,7 @@ export class Tab3Page implements AfterViewInit {
 
     this.locations = locations;
     const distances = [];
+    const timestamps = [];
     /*for (let i = 1; i < locations.length; i++) {
       const distance = Math.sqrt(
         Math.pow(Math.abs(locations[i].longitude - locations[i - 1].longitude), 2) +
@@ -37,54 +40,42 @@ export class Tab3Page implements AfterViewInit {
     }*/
     let prevLoc = null;
     for (const location of locations) {
+      timestamps.push(location.timestamp);
       if (!prevLoc) {
         distances.push(0);
         prevLoc = location;
         continue;
       }
-      /*const distance = Math.sqrt(
-        Math.pow(Math.abs(location.longitude - prevLoc.longitude), 2) +
-        Math.pow(Math.abs(location.latitude - prevLoc.latitude), 2)
-      );*/
       const distance = this.measure(location.latitude, location.longitude, prevLoc.latitude, prevLoc.longitude);
       prevLoc = location;
-      console.log('distance ' + distance);
-      distances.push(distance);
+      distances.push({x: new Date(location.timestamp), y: distance});
     }
-
 
     this.chart = new Chart(this.chartElementRef.nativeElement, {
       type: 'line',
       data: {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
         datasets: [{
-          label: '# of Votes',
-          data: distances,
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(255, 206, 86, 0.2)',
-            'rgba(75, 192, 192, 0.2)',
-            'rgba(153, 102, 255, 0.2)',
-            'rgba(255, 159, 64, 0.2)'
-          ],
-          borderColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)',
-            'rgba(255, 159, 64, 1)'
-          ],
-          borderWidth: 1
+          label: 'Times',
+          data: distances
         }]
       },
       options: {
         scales: {
+          x: {
+            type: 'time',
+            /*time: {
+              unit: 'week',
+            },*/
+            adapters: {
+              date: {
+                locale: enNZ
+              }
+            }
+          },
           y: {
             beginAtZero: true
-          }
-        }
+          },
+        },
       }
     });
   }
@@ -101,3 +92,4 @@ export class Tab3Page implements AfterViewInit {
     return d * 1000; // meters
   }
 }
+
