@@ -48,12 +48,13 @@ export class Tab3Page implements AfterViewInit {
       }
       const distance = this.measure(location.latitude, location.longitude, prevLoc.latitude, prevLoc.longitude);
       prevLoc = location;
-      distances.push({x: new Date(location.timestamp), y: distance});
+      distances.push(distance);
     }
 
     this.chart = new Chart(this.chartElementRef.nativeElement, {
       type: 'line',
       data: {
+        labels: timestamps,
         datasets: [{
           label: 'Times',
           data: distances
