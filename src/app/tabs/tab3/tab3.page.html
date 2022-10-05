@@ -1,7 +1,8 @@
+<link rel="stylesheet" href="../tab2/tab2.page.scss">
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Tab 3
+      Location Stats
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -9,9 +10,30 @@
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Tab 3</ion-title>
+      <ion-title size="large">Location Statistics</ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <app-explore-container name="Tab 3 page"></app-explore-container>
+  <!--<canvas id="chart1" ></canvas>-->
+  <ion-grid>
+    <ion-row>
+      <canvas #chart1></canvas>
+    </ion-row>
+    <ion-row>
+      <canvas #chart2></canvas>
+    </ion-row>
+    <ion-row>
+      <ion-label>Time Range</ion-label>
+    </ion-row>
+    <ion-row>
+      <ion-button (click)="setPointTimeframe(24)">24 hours</ion-button>
+      <ion-button (click)="setPointTimeframe(72)">3 days</ion-button>
+      <ion-button (click)="setPointTimeframe(168)">1 week</ion-button>
+      <ion-button (click)="setPointTimeframe(720)">1 month</ion-button>
+      <ion-button (click)="setPointTimeframe(0)">All Time</ion-button>
+    </ion-row>
+  </ion-grid>
+
+   <!-- <div class="chart">
+    </div>-->
 </ion-content>
