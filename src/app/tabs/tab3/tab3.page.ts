@@ -88,6 +88,9 @@ export class Tab3Page implements AfterViewInit {
           },
           y: {
             beginAtZero: true,
+            ticks: {
+              precision: 2
+            },
             title: {
               display: true,
               text: 'Distance travelled (Metres)'
@@ -106,10 +109,10 @@ export class Tab3Page implements AfterViewInit {
         datasets: [{
           label: 'Speed',
           backgroundColor: [
-            'rgba(255, 99, 132, 0.2)'
+            'rgba(100, 219, 63, 0.2)'
           ],
           borderColor: [
-            'rgba(255,99,132,1)'
+            'rgba(100, 219, 63,1)'
           ],
           data: speeds
         }]
@@ -133,6 +136,9 @@ export class Tab3Page implements AfterViewInit {
           },
           y: {
             beginAtZero: true,
+            ticks: {
+              precision: 2
+            },
             title: {
               display: true,
               text: 'Speed (Metres/Second)'

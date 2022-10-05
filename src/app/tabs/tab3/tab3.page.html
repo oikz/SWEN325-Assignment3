@@ -15,36 +15,25 @@
   </ion-header>
 
   <!--<canvas id="chart1" ></canvas>-->
-  <ion-item>
-    <div class="chart">
+  <ion-grid>
+    <ion-row>
       <canvas #chart1></canvas>
-    </div>
-  </ion-item>
-  <ion-item>
-    <div class="chart">
+    </ion-row>
+    <ion-row>
       <canvas #chart2></canvas>
-    </div>
-  </ion-item>
-  <!--<ion-item>
-    <ion-label>Data to display</ion-label>
-  </ion-item>
-  <ion-item>
-    <div>
-      <ion-button (click)="setPointTimeframe(24)">Distance</ion-button>
-      <ion-button (click)="setPointTimeframe(72)">Speed</ion-button>
-    </div>
-  </ion-item>-->
-
-  <ion-item>
-    <ion-label>Time Range</ion-label>
-  </ion-item>
-  <ion-item>
-    <div>
+    </ion-row>
+    <ion-row>
+      <ion-label>Time Range</ion-label>
+    </ion-row>
+    <ion-row>
       <ion-button (click)="setPointTimeframe(24)">24 hours</ion-button>
       <ion-button (click)="setPointTimeframe(72)">3 days</ion-button>
       <ion-button (click)="setPointTimeframe(168)">1 week</ion-button>
       <ion-button (click)="setPointTimeframe(720)">1 month</ion-button>
       <ion-button (click)="setPointTimeframe(0)">All Time</ion-button>
-    </div>
-  </ion-item>
+    </ion-row>
+  </ion-grid>
+
+   <!-- <div class="chart">
+    </div>-->
 </ion-content>
