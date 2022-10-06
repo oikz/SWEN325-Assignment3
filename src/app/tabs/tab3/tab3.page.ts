@@ -9,6 +9,7 @@ import {FirestoreService} from '../../services/firestore.service';
   templateUrl: 'tab3.page.html',
   styleUrls: ['tab3.page.scss']
 })
+
 export class Tab3Page implements AfterViewInit {
   @ViewChild('chart1') chart1ElementRef: ElementRef;
   @ViewChild('chart2') chart2ElementRef: ElementRef;
@@ -18,6 +19,7 @@ export class Tab3Page implements AfterViewInit {
   earliestDate = 0;
 
   constructor(public firestoreService: FirestoreService) {
+    //get current stored locations from firestore
     this.firestoreService.getLocations().subscribe((locations) => {
       this.displayGraph(locations);
     });
@@ -32,6 +34,7 @@ export class Tab3Page implements AfterViewInit {
     const distances = [];
     const speeds = [];
     const timestamps = [];
+    //add time filter to locations if set
     if (this.earliestDate !== 0) {
       const now = new Date().getTime();
       const filterTime = now - this.earliestDate * 60 * 60 * 1000;
@@ -40,11 +43,14 @@ export class Tab3Page implements AfterViewInit {
     let prevLoc = null;
     for (const location of locations) {
       timestamps.push(location.timestamp);
+      //push 0 for first location
       if (!prevLoc) {
         distances.push(0);
+        speeds.push(0);
         prevLoc = location;
         continue;
       }
+      //don't measure distance/speed for gaps in data
       if ((location.timestamp - prevLoc.timestamp) > 1_000) {
         prevLoc = location;
         continue;
@@ -145,7 +151,7 @@ export class Tab3Page implements AfterViewInit {
             },
             title: {
               display: true,
-              text: 'Speed (Metres/Second)'
+              text: 'Speed (km/h)'
             }
           },
         },
@@ -153,7 +159,8 @@ export class Tab3Page implements AfterViewInit {
     });
   }
 
-  measureDistance(lat1, lon1, lat2, lon2) {  // generally used geo measurement function
+  //measure distance in metres between two latitude/longitude points
+  measureDistance(lat1, lon1, lat2, lon2) {
     const R = 6378.137; // Radius of earth in KM
     const dLat = lat2 * Math.PI / 180 - lat1 * Math.PI / 180;
     const dLon = lon2 * Math.PI / 180 - lon1 * Math.PI / 180;
@@ -165,11 +172,13 @@ export class Tab3Page implements AfterViewInit {
     return d * 1000; // meters
   }
 
+  //measure speed in km/h given distance travelled and two timestamps
   measureSpeed(dist, time1, time2) {
     const time = (time2 - time1) / 1000;
-    return dist / time;
+    return (dist / time) * 3.6;
   }
 
+  //set filter time for graph and update graph
   setPointTimeframe(timeframe: number) {
     this.earliestDate = timeframe;
     this.firestoreService.getLocations().subscribe((locations) => {
