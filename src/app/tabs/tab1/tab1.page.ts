@@ -13,6 +13,10 @@ import {FirestoreService} from '../../services/firestore.service';
   templateUrl: 'tab1.page.html',
   styleUrls: ['tab1.page.scss']
 })
+
+/**
+ * Tab 1 Page for the app - shows the current location of the user and allows them to begin tracking their location
+ */
 export class Tab1Page {
   @ViewChild('map') mapView: ElementRef;
   id = '0';
@@ -29,6 +33,9 @@ export class Tab1Page {
               private firestoreService: FirestoreService) {
   }
 
+  /**
+   * Set up the Map and start refreshing it every 500ms with the user's current position and heading based on compass
+   */
   ionViewDidEnter() {
     this.createMap().then(async () => {
       this.refreshInterval = setInterval(async () => {
@@ -43,9 +50,12 @@ export class Tab1Page {
     );
   }
 
-  ionViewDidLeave() {
-    CapacitorGoogleMaps.close();
-    Geolocation.clearWatch({id: this.id});
+  /**
+   * Destroy the map and stop refreshing it when leaving this page
+   */
+  async ionViewDidLeave() {
+    await CapacitorGoogleMaps.close();
+    await Geolocation.clearWatch({id: this.id});
     this.orientationListener.unsubscribe();
     clearInterval(this.refreshInterval);
   }
@@ -120,9 +130,15 @@ export class Tab1Page {
   logout() {
     this.auth.logout();
     this.router.navigate(['']);
+    CapacitorGoogleMaps.close();
+    Geolocation.clearWatch({id: this.id});
+    this.orientationListener.unsubscribe();
+    clearInterval(this.refreshInterval);
   }
 
-
+  /**
+   * Start tracking the user's location and save it to the database
+   */
   async startTracking() {
     this.isTracking = true;
     this.watch = await Geolocation.watchPosition({
@@ -140,7 +156,9 @@ export class Tab1Page {
     });
   }
 
-  // Unsubscribe from the geolocation watch using the initial ID
+  /**
+   * Stop tracking the user's location
+   */
   stopTracking() {
     Geolocation.clearWatch({id: this.watch}).then(() => {
       this.isTracking = false;
