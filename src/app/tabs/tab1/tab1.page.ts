@@ -18,7 +18,6 @@ import {FirestoreService} from '../../services/firestore.service';
  */
 export class Tab1Page {
   @ViewChild('map') mapView: ElementRef;
-  id = '0';
   heading = 0;
   orientationInterval: any;
   refreshInterval: any;
@@ -52,7 +51,6 @@ export class Tab1Page {
    */
   ionViewDidLeave() {
     CapacitorGoogleMaps.close();
-    Geolocation.clearWatch({id: this.id});
     clearInterval(this.orientationInterval);
     clearInterval(this.refreshInterval);
   }
@@ -128,7 +126,6 @@ export class Tab1Page {
     this.auth.logout();
     this.router.navigate(['']);
     CapacitorGoogleMaps.close();
-    Geolocation.clearWatch({id: this.id});
     console.log(this.orientationInterval);
     clearInterval(this.orientationInterval);
     clearInterval(this.refreshInterval);

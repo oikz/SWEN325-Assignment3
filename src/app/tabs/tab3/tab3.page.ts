@@ -53,7 +53,7 @@ export class Tab3Page implements AfterViewInit {
         continue;
       }
       //don't measure distance/speed for gaps in data
-      if ((prevLoc.timestamp - location.timestamp) > 15000) {
+      if ((prevLoc.timestamp - location.timestamp) > 60000) {
         distances.push(0);
         speeds.push(0);
         prevLoc = location;
