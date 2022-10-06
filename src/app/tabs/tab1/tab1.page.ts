@@ -3,8 +3,7 @@ import {Geolocation, Position} from '@capacitor/geolocation';
 import {AuthService} from '../../services/auth.service';
 import {Router} from '@angular/router';
 import {CapacitorGoogleMaps} from '@capacitor-community/capacitor-googlemaps-native';
-import {DeviceOrientation, DeviceOrientationCompassHeading} from '@awesome-cordova-plugins/device-orientation/ngx';
-import {Subscription} from 'rxjs';
+import {DeviceOrientation} from '@awesome-cordova-plugins/device-orientation/ngx';
 import {FirestoreService} from '../../services/firestore.service';
 
 
@@ -21,7 +20,7 @@ export class Tab1Page {
   @ViewChild('map') mapView: ElementRef;
   id = '0';
   heading = 0;
-  orientationListener: Subscription;
+  orientationInterval: any;
   refreshInterval: any;
   isTracking = false;
   watch: string = null;
@@ -37,26 +36,24 @@ export class Tab1Page {
    * Set up the Map and start refreshing it every 500ms with the user's current position and heading based on compass
    */
   ionViewDidEnter() {
-    this.createMap().then(async () => {
+    this.createMap().then(() => {
       this.refreshInterval = setInterval(async () => {
         const position = await Geolocation.getCurrentPosition();
         await this.updateMap(position);
       }, 500);
+      this.orientationInterval = setInterval(async () => {
+        this.heading = (await this.deviceOrientation.getCurrentHeading()).magneticHeading;
+      });
     });
-
-    // Listen for changes in the device orientation and autorotate the map
-    this.orientationListener = this.deviceOrientation.watchHeading().subscribe(
-      (data: DeviceOrientationCompassHeading) => this.heading = data.magneticHeading
-    );
   }
 
   /**
    * Destroy the map and stop refreshing it when leaving this page
    */
-  async ionViewDidLeave() {
-    await CapacitorGoogleMaps.close();
-    await Geolocation.clearWatch({id: this.id});
-    this.orientationListener.unsubscribe();
+  ionViewDidLeave() {
+    CapacitorGoogleMaps.close();
+    Geolocation.clearWatch({id: this.id});
+    clearInterval(this.orientationInterval);
     clearInterval(this.refreshInterval);
   }
 
@@ -132,7 +129,8 @@ export class Tab1Page {
     this.router.navigate(['']);
     CapacitorGoogleMaps.close();
     Geolocation.clearWatch({id: this.id});
-    this.orientationListener.unsubscribe();
+    console.log(this.orientationInterval);
+    clearInterval(this.orientationInterval);
     clearInterval(this.refreshInterval);
   }
 
