@@ -1,10 +1,19 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>welcome</ion-title>
+    <ion-title>Welcome to ActivityTracker</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-button [routerLink]="['/signin']">Sign In</ion-button>
-  <ion-button [routerLink]="['/signup']">Sign Up</ion-button>
+  Please Sign up or Sign in with your account
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-button [routerLink]="['/signin']" style="width: 100%">Sign In</ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button [routerLink]="['/signup']" style="width: 100%">Sign Up</ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>

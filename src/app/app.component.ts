@@ -8,6 +8,11 @@ import {FirestoreService} from './services/firestore.service';
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
 })
+
+/**
+ * The root component of the application
+ * Displays either the welcome page or the tabs page depending on whether the user is logged in or not
+ */
 export class AppComponent {
   constructor(private auth: Auth, private router: Router, private firestoreService: FirestoreService) {
     this.auth.onAuthStateChanged(user => {
