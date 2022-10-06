@@ -2,6 +2,8 @@ import {Component, ElementRef, ViewChild} from '@angular/core';
 import {CapacitorGoogleMaps} from '@capacitor-community/capacitor-googlemaps-native';
 import {Geolocation} from '@capacitor/geolocation';
 import {FirestoreService} from '../../services/firestore.service';
+import {AuthService} from '../../services/auth.service';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-tab2',
@@ -12,7 +14,7 @@ export class Tab2Page {
   @ViewChild('map') mapView: ElementRef;
   earliestDate = 24;
 
-  constructor(public firestoreService: FirestoreService) {
+  constructor(public firestoreService: FirestoreService, private auth: AuthService, private router: Router) {
     this.firestoreService.getLocations().subscribe((locations) => {
       this.updateMap(locations);
     });
@@ -86,5 +88,14 @@ export class Tab2Page {
         this.updateMap(locations);
       }
     );
+  }
+
+  /**
+   * Logout the current user and redirect them to the welcome page
+   */
+  logout() {
+    this.auth.logout();
+    this.router.navigate(['']);
+    CapacitorGoogleMaps.close();
   }
 }

@@ -3,6 +3,8 @@ import {Chart, registerables} from 'chart.js';
 import 'chartjs-adapter-date-fns';
 import {enNZ} from 'date-fns/locale';
 import {FirestoreService} from '../../services/firestore.service';
+import {AuthService} from '../../services/auth.service';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-tab3',
@@ -18,7 +20,7 @@ export class Tab3Page implements AfterViewInit {
   locations: any;
   earliestDate = 0;
 
-  constructor(public firestoreService: FirestoreService) {
+  constructor(public firestoreService: FirestoreService, private auth: AuthService, private router: Router) {
     //get current stored locations from firestore
     this.firestoreService.getLocations().subscribe((locations) => {
       this.displayGraph(locations);
@@ -187,6 +189,14 @@ export class Tab3Page implements AfterViewInit {
         this.displayGraph(locations);
       }
     );
+  }
+
+  /**
+   * Logout the current user and redirect them to the welcome page
+   */
+  logout() {
+    this.auth.logout();
+    this.router.navigate(['']);
   }
 }
 
