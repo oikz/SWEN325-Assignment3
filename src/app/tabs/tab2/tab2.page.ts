@@ -63,14 +63,34 @@ export class Tab2Page {
   async updateMap(locations: any) {
     // draw a line between the locations visited in last this.earliestDate hours
     const now = new Date().getTime();
-    const last24Hours = now - this.earliestDate * 60 * 60 * 1000;
-    const filteredLocations = locations.filter((loc) => loc.timestamp > last24Hours);
+    const earliestDateToNow = now - this.earliestDate * 60 * 60 * 1000;
+    const filteredLocations = locations.filter((loc) => loc.timestamp > earliestDateToNow);
 
-    const points = filteredLocations.map((loc) => ({
-        latitude: loc.latitude,
-        longitude: loc.longitude,
-      })
-    );
+    // create the points to be drawn,
+    // only take into account the points that are not too far away from each other
+    const points = [];
+    let prevLoc = null;
+    for (const location of filteredLocations) {
+      if (!prevLoc) {
+        points.push({
+          latitude: location.latitude,
+          longitude: location.longitude,
+        });
+        prevLoc = location;
+        continue;
+      }
+      // if the time difference between the previous location and the current location is too big,
+      // don't draw a line between them
+      if ((prevLoc.timestamp - location.timestamp) < 600000) { // 10 minutes
+        points.push({
+          latitude: location.latitude,
+          longitude: location.longitude,
+        });
+        prevLoc = location;
+        continue;
+      }
+      prevLoc = location;
+    }
 
     //clear map
     await CapacitorGoogleMaps.clear();
