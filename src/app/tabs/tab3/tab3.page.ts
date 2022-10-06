@@ -45,6 +45,10 @@ export class Tab3Page implements AfterViewInit {
         prevLoc = location;
         continue;
       }
+      if ((location.timestamp - prevLoc.timestamp) > 1_000) {
+        prevLoc = location;
+        continue;
+      }
       const distance = this.measureDistance(location.latitude, location.longitude, prevLoc.latitude, prevLoc.longitude);
       const speed = this.measureSpeed(distance, location.timestamp, prevLoc.timestamp);
       prevLoc = location;
