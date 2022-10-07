@@ -87,6 +87,9 @@ export class Tab2Page {
    * @param locations locations to draw lines between
    */
   async updateMap(locations: any) {
+    //clear map
+    await CapacitorGoogleMaps.clear();
+
     // draw a line between the locations visited in last this.earliestDate hours
     const now = new Date().getTime();
     const earliestDateToNow = now - this.earliestDate * 60 * 60 * 1000;
@@ -94,11 +97,14 @@ export class Tab2Page {
 
     // create the points to be drawn,
     // only take into account the points that are not too far away from each other
-    const points = [];
+    const points = [[]];
+    let pointIndex = 0;
     let prevLoc = null;
+    points.push([]);
+    console.log('came here');
     for (const location of filteredLocations) {
       if (!prevLoc) {
-        points.push({
+        points[pointIndex].push({
           latitude: location.latitude,
           longitude: location.longitude,
         });
@@ -107,24 +113,30 @@ export class Tab2Page {
       }
       // if the time difference between the previous location and the current location is too big,
       // don't draw a line between them
-      if ((prevLoc.timestamp - location.timestamp) < 600000) { // 10 minutes
-        points.push({
-          latitude: location.latitude,
-          longitude: location.longitude,
-        });
+      // instead, create a new point
+      if ((prevLoc.timestamp - location.timestamp) > 600000) { // 10 minutes
+        pointIndex++;
         prevLoc = location;
+        points.push([]);
         continue;
       }
+      points[pointIndex].push({
+        latitude: location.latitude,
+        longitude: location.longitude,
+      });
       prevLoc = location;
     }
 
-    //clear map
-    await CapacitorGoogleMaps.clear();
     //add points
     if (points.length > 0) {
-      CapacitorGoogleMaps.addPolyline({
-        points,
-      });
+      console.log(points);
+      for (const point of points) {
+        if (point.length > 0) {
+          await CapacitorGoogleMaps.addPolyline({
+            points: point
+          });
+        }
+      }
     }
   }
 
