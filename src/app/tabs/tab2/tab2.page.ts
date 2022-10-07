@@ -80,6 +80,19 @@ export class Tab2Page {
     this.firestoreService.deleteLocation(pos);
   }
 
+  //measure distance in metres between two latitude/longitude points
+  measureDistance(lat1, lon1, lat2, lon2) {
+    const R = 6378.137; // Radius of earth in KM
+    const dLat = lat2 * Math.PI / 180 - lat1 * Math.PI / 180;
+    const dLon = lon2 * Math.PI / 180 - lon1 * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const d = R * c;
+    return d * 1000; // meters
+  }
+
   /**
    * Update the map lines between locations visited
    * Only draws lines between locations that are within the timeframe set by the user
@@ -115,6 +128,12 @@ export class Tab2Page {
       // don't draw a line between them
       // instead, create a new point
       if ((prevLoc.timestamp - location.timestamp) > 600000) { // 10 minutes
+        pointIndex++;
+        prevLoc = location;
+        points.push([]);
+        continue;
+      }
+      if (this.measureDistance(prevLoc.latitude, prevLoc.longitude, location.latitude, location.longitude) > 5000) {
         pointIndex++;
         prevLoc = location;
         points.push([]);
