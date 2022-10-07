@@ -20,6 +20,15 @@ export class Tab3Page implements AfterViewInit {
   locations: any;
   earliestDate = 0;
 
+  /**
+   * Constructor for the Tab3Page that initializes the fields.
+   * Subscribes to the locations in Firebase and updates the map when they change.
+   * Calls the updateMap function to draw the lines between the locations.
+   *
+   * @param firestoreService the firestore service
+   * @param auth the authentication service
+   * @param router the router
+   */
   constructor(public firestoreService: FirestoreService, private auth: AuthService, private router: Router) {
     //get current stored locations from firestore
     this.firestoreService.getLocations().subscribe((locations) => {
@@ -31,6 +40,11 @@ export class Tab3Page implements AfterViewInit {
     Chart.register(...registerables);
   }
 
+  /**
+   * Display locations from firestore on graph
+   *
+   * @param locations locations to display on graph
+   */
   displayGraph(locations: any) {
     this.locations = locations;
     const distances = [];
@@ -68,6 +82,8 @@ export class Tab3Page implements AfterViewInit {
     if (this.distChart) {
       this.distChart.destroy();
     }
+
+    //create distance chart
     this.distChart = new Chart(this.chart1ElementRef.nativeElement, {
       type: 'line',
       data: {
@@ -116,6 +132,7 @@ export class Tab3Page implements AfterViewInit {
     if (this.speedChart) {
       this.speedChart.destroy();
     }
+    //create speed chart
     this.speedChart = new Chart(this.chart2ElementRef.nativeElement, {
       type: 'line',
       data: {
@@ -163,7 +180,14 @@ export class Tab3Page implements AfterViewInit {
     });
   }
 
-  //measure distance in metres between two latitude/longitude points
+  /**
+   * Measure distance in metres between two latitude/longitude points
+   *
+   * @param lat1 latitude of first point
+   * @param lon1 longitude of first point
+   * @param lat2 latitude of second point
+   * @param lon2 longitude of second point
+   */
   measureDistance(lat1, lon1, lat2, lon2) {
     const R = 6378.137; // Radius of earth in KM
     const dLat = lat2 * Math.PI / 180 - lat1 * Math.PI / 180;
@@ -176,13 +200,23 @@ export class Tab3Page implements AfterViewInit {
     return d * 1000; // meters
   }
 
-  //measure speed in km/h given distance travelled and two timestamps
+  /**
+   * Measure distance in metres between two latitude/longitude points
+   *
+   * @param dist distance between points in metres
+   * @param time1 timestamp of first point
+   * @param time2 timestamp of second point
+   */
   measureSpeed(dist, time1, time2) {
     const time = (time2 - time1) / 1000;
     return (dist / time) * 3.6;
   }
 
-  //set filter time for graph and update graph
+  /**
+   * Set filter timeframe for graph
+   *
+   * @param timeframe time to filter by in hours
+   */
   setPointTimeframe(timeframe: number) {
     this.earliestDate = timeframe;
     this.firestoreService.getLocations().subscribe((locations) => {
