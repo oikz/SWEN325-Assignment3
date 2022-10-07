@@ -80,7 +80,14 @@ export class Tab2Page {
     this.firestoreService.deleteLocation(pos);
   }
 
-  //measure distance in metres between two latitude/longitude points
+  /**
+   * Calculate the distance between two points, returns the distance in meters
+   *
+   * @param lat1 latitude of the first point
+   * @param lon1 longitude of the first point
+   * @param lat2 latitude of the second point
+   * @param lon2 longitude of the second point
+   */
   measureDistance(lat1, lon1, lat2, lon2) {
     const R = 6378.137; // Radius of earth in KM
     const dLat = lat2 * Math.PI / 180 - lat1 * Math.PI / 180;
